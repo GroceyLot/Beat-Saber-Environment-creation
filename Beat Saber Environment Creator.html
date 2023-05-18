@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Beat Saber Environment Editor</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+            }
+            .list-item.selected {
+                background-color: #f3f3f3;
+                border: 1px solid #4caf50;
+            }
+
+            .container {
+                display: flex;
+                justify-content: space-between;
+                margin: 20px;
+                border-radius: 10px;
+            }
+
+            .container > div {
+                flex: 1;
+                margin-right: 20px;
+                border-radius: 10px;
+            }
+
+            .container > div:last-child {
+                margin-right: 0;
+                border-radius: 10px;
+            }
+
+            .list {
+                margin-top: 10px;
+                border: 1px solid #ccc;
+                padding: 10px;
+                border-radius: 10px;
+            }
+
+            .list-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 5px;
+                border-radius: 10px;
+            }
+
+            button {
+                padding: 5px 10px;
+                border-radius: 10px;
+                background-color: #4caf50;
+                color: white;
+                border: none;
+                cursor: pointer;
+            }
+
+            button:hover {
+                background-color: #45a049;
+                border-radius: 10px;
+            }
+
+            button:active {
+                background-color: #3e8e41;
+                border-radius: 10px;
+            }
+            input {
+                padding: 5px;
+                border: 1px solid #ccc;
+                border-radius: 3px;
+                border-radius: 10px;
+            }
+
+            input:focus {
+                outline: none;
+                border-color: #4caf50;
+                box-shadow: 0 0 3px #4caf50;
+                border-radius: 10px;
+            }
+            input[type="checkbox"] {
+                appearance: none;
+                -webkit-appearance: none;
+                width: 14px;
+                height: 14px;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+                vertical-align: middle;
+                position: relative;
+                top: 1px;
+            }
+
+            input[type="checkbox"]:checked {
+                background-color: #4caf50;
+                border-color: #4caf50;
+                border-radius: 10px;
+            }
+
+            input[type="checkbox"]:checked::before {
+                content: "\2713";
+                font-size: 10px;
+                color: white;
+                position: absolute;
+                top: -1px;
+                left: 3px;
+                border-radius: 10px;
+            }
+
+            input[type="checkbox"]:focus {
+                outline: none;
+                box-shadow: 0 0 3px #4caf50;
+                border-radius: 10px;
+            }
+            select {
+                padding: 5px;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+                appearance: none;
+                -webkit-appearance: none;
+                background-color: white;
+                background-image: linear-gradient(45deg, transparent 50%, #888 50%), linear-gradient(135deg, #888 50%, transparent 50%);
+                background-position: calc(100% - 10px) 9px, calc(100% - 6px) 9px;
+                background-size: 5px 5px, 5px 5px;
+                background-repeat: no-repeat;
+            }
+
+            select:focus {
+                outline: none;
+                border-color: #4caf50;
+                box-shadow: 0 0 3px #4caf50;
+                border-radius: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="column">
+                <h2>Materials</h2>
+                <div>
+                    <label for="materialName">Name:</label>
+                    <input type="text" id="materialName" />
+                </div>
+                <div>
+                    <label for="materialColorR">Color R:</label>
+                    <input type="number" id="materialColorR" step="0.1" min="0" max="1" placeholder="0" />
+                </div>
+                <div>
+                    <label for="materialColorG">Color G:</label>
+                    <input type="number" id="materialColorG" step="0.1" min="0" max="1" placeholder="0" />
+                </div>
+                <div>
+                    <label for="materialColorB">Color B:</label>
+                    <input type="number" id="materialColorB" step="0.1" min="0" max="1" placeholder="0" />
+                </div>
+                <div>
+                    <label for="materialColorA">Color A:</label>
+                    <input type="number" id="materialColorA" step="0.1" min="0" max="1" placeholder="0" />
+                </div>
+                <div>
+                    <label for="materialShader">Shader:</label>
+                    <select id="materialShader">
+                        <option value="Standard">Standard</option>
+                        <option value="OpaqueLight">OpaqueLight</option>
+                        <option value="TransparentLight">TransparentLight</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="materialTrack">Track:</label>
+                    <input type="text" id="materialTrack" />
+                </div>
+                <div>
+                    <button onclick="addMaterial()">Add/Edit Material</button>
+                    <button onclick="deleteMaterial()">Delete Material</button>
+                    <button onclick="deselectMaterial()">Deselect Material</button>
+                </div>
+                <div class="list">
+                    <h3>Material List</h3>
+                    <div id="materialList"></div>
+                </div>
+            </div>
+            <div class="column">
+                <h2>Environment Objects</h2>
+                <div>
+                    <label for="objectName">Name:</label>
+                    <input type="text" id="objectName" />
+                </div>
+                <div>
+                    <label for="objectType">Type:</label>
+                    <select id="objectType">
+                        <option value="Sphere">Sphere</option>
+                        <option value="Cube">Cube</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="objectMaterial">Material:</label>
+                    <input type="text" id="objectMaterial" />
+                </div>
+                <div>
+                    <label for="objectCollision">Collision:</label>
+                    <input type="checkbox" id="objectCollision" />
+                </div>
+                <div>
+                    <label for="objectScaleX">Scale X:</label>
+                    <input type="number" id="objectScaleX" step="0.1" min="0" placeholder="1" />
+                </div>
+                <div>
+                    <label for="objectScaleY">Scale Y:</label>
+                    <input type="number" id="objectScaleY" step="0.1" min="0" placeholder="1" />
+                </div>
+                <div>
+                    <label for="objectScaleZ">Scale Z:</label>
+                    <input type="number" id="objectScaleZ" step="0.1" min="0" placeholder="1" />
+                </div>
+                <div>
+                    <label for="objectPositionX">Position X:</label>
+                    <input type="number" id="objectPositionX" placeholder="0" />
+                </div>
+                <div>
+                    <label for="objectPositionY">Position Y:</label>
+                    <input type="number" id="objectPositionY" placeholder="0" />
+                </div>
+                <div>
+                    <label for="objectPositionZ">Position Z:</label>
+                    <input type="number" id="objectPositionZ" placeholder="0" />
+                </div>
+                <div>
+                    <label for="objectRotationX">Rotation X:</label>
+                    <input type="number" id="objectRotationX" placeholder="0" />
+                </div>
+                <div>
+                    <label for="objectRotationY">Rotation Y:</label>
+                    <input type="number" id="objectRotationY" placeholder="0" />
+                </div>
+                <div>
+                    <label for="objectRotationZ">Rotation Z:</label>
+                    <input type="number" id="objectRotationZ" placeholder="0" />
+                </div>
+                <div>
+                    <label for="objectTrack">Track:</label>
+                    <input type="text" id="objectTrack" />
+                </div>
+                <div>
+                    <button onclick="addObject()">Add/Edit Object</button>
+                    <button onclick="deleteObject()">Delete Object</button>
+                    <button onclick="deselectObject()">Deselect Object</button>
+                </div>
+                <div class="list">
+                    <h3>Object List</h3>
+                    <div id="objectList"></div>
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div>
+                <input type="file" id="importFile" />
+                <button onclick="importEnvironment()">Import Environment</button>
+                <button onclick="exportEnvironment()">Export Environment</button>
+            </div>
+        </div>
+
+        <script>
+            let materials = [];
+            let objects = [];
+            let selectedMaterialIndex = -1;
+            let selectedObjectIndex = -1;
+
+            function refreshMaterialList() {
+                const materialList = document.getElementById("materialList");
+                materialList.innerHTML = "";
+
+                for (let i = 0; i < materials.length; i++) {
+                    const material = materials[i];
+
+                    const listItem = document.createElement("div");
+                    listItem.classList.add("list-item");
+
+                    const nameElement = document.createElement("span");
+                    nameElement.textContent = material.name;
+
+                    const actionsElement = document.createElement("div");
+                    actionsElement.classList.add("item-actions");
+
+                    const selectButton = document.createElement("button");
+                    selectButton.textContent = "Select";
+                    selectButton.onclick = () => selectMaterial(i);
+
+                    actionsElement.appendChild(selectButton);
+                    listItem.appendChild(nameElement);
+                    listItem.appendChild(actionsElement);
+                    materialList.appendChild(listItem);
+                }
+            }
+
+            function addMaterial() {
+                const nameInput = document.getElementById("materialName");
+                const colorRInput = document.getElementById("materialColorR");
+                const colorGInput = document.getElementById("materialColorG");
+                const colorBInput = document.getElementById("materialColorB");
+                const colorAInput = document.getElementById("materialColorA");
+                const shaderSelect = document.getElementById("materialShader");
+                const trackInput = document.getElementById("materialTrack");
+
+                const name = nameInput.value.trim();
+                const colorR = parseFloat(colorRInput.value);
+                const colorG = parseFloat(colorGInput.value);
+                const colorB = parseFloat(colorBInput.value);
+                const colorA = parseFloat(colorAInput.value);
+                const shader = shaderSelect.value;
+                const track = trackInput.value.trim();
+
+                if (!name || !shader) {
+                    alert("Please fill in all material fields");
+                    return;
+                }
+
+                const material = name : { color: [colorR, colorG, colorB, colorA], shader, track };
+
+                if (selectedMaterialIndex !== -1) {
+                    materials[selectedMaterialIndex] = material;
+                    selectedMaterialIndex = -1;
+                } else {
+                    materials.push(material);
+                }
+
+                refreshMaterialList();
+            }
+
+            function deleteMaterial() {
+                if (selectedMaterialIndex !== -1) {
+                    materials.splice(selectedMaterialIndex, 1);
+                    selectedMaterialIndex = -1;
+                    refreshMaterialList();
+                }
+            }
+
+            function selectMaterial(index) {
+                selectedMaterialIndex = index;
+                const material = materials[index];
+
+                const nameInput = document.getElementById("materialName");
+                const colorRInput = document.getElementById("materialColorR");
+                const colorGInput = document.getElementById("materialColorG");
+                const colorBInput = document.getElementById("materialColorB");
+                const colorAInput = document.getElementById("materialColorA");
+                const shaderSelect = document.getElementById("materialShader");
+                const trackInput = document.getElementById("materialTrack");
+
+                nameInput.value = material.name;
+                colorRInput.value = material.color[0];
+                colorGInput.value = material.color[1];
+                colorBInput.value = material.color[2];
+                colorAInput.value = material.color[3];
+                shaderSelect.value = material.shader;
+                trackInput.value = material.track;
+            }
+
+            function deselectMaterial() {
+                selectedMaterialIndex = -1;
+            }
+
+            function clearMaterialFields() {
+                const nameInput = document.getElementById("materialName");
+                const colorRInput = document.getElementById("materialColorR");
+                const colorGInput = document.getElementById("materialColorG");
+                const colorBInput = document.getElementById("materialColorB");
+                const colorAInput = document.getElementById("materialColorA");
+                const shaderSelect = document.getElementById("materialShader");
+                const trackInput = document.getElementById("materialTrack");
+
+                nameInput.value = "";
+                colorRInput.value = "";
+                colorGInput.value = "";
+                colorBInput.value = "";
+                colorAInput.value = "";
+                shaderSelect.value = "Standard";
+                trackInput.value = "";
+            }
+
+            function refreshObjectList() {
+                const objectList = document.getElementById("objectList");
+                objectList.innerHTML = "";
+
+                for (let i = 0; i < objects.length; i++) {
+                    const object = objects[i];
+
+                    const listItem = document.createElement("div");
+                    listItem.classList.add("list-item");
+
+                    const nameElement = document.createElement("span");
+                    nameElement.textContent = object.name;
+
+                    const actionsElement = document.createElement("div");
+                    actionsElement.classList.add("item-actions");
+
+                    const selectButton = document.createElement("button");
+                    selectButton.textContent = "Select";
+                    selectButton.onclick = () => selectObject(i);
+
+                    actionsElement.appendChild(selectButton);
+                    listItem.appendChild(nameElement);
+                    listItem.appendChild(actionsElement);
+                    objectList.appendChild(listItem);
+                }
+            }
+
+            function addObject() {
+                const nameInput = document.getElementById("objectName");
+                const typeSelect = document.getElementById("objectType");
+                const materialInput = document.getElementById("objectMaterial");
+                const collisionInput = document.getElementById("objectCollision");
+                const scaleXInput = document.getElementById("objectScaleX");
+                const scaleYInput = document.getElementById("objectScaleY");
+                const scaleZInput = document.getElementById("objectScaleZ");
+                const posXInput = document.getElementById("objectPositionX");
+                const posYInput = document.getElementById("objectPositionY");
+                const posZInput = document.getElementById("objectPositionZ");
+                const rotXInput = document.getElementById("objectRotationX");
+                const rotYInput = document.getElementById("objectRotationY");
+                const rotZInput = document.getElementById("objectRotationZ");
+                const trackInput = document.getElementById("objectTrack");
+
+                const name = nameInput.value.trim();
+                const type = typeSelect.value;
+                const material = materialInput.value.trim();
+                const collision = collisionInput.checked;
+                const scaleX = parseFloat(scaleXInput.value) || 0;
+                const scaleY = parseFloat(scaleYInput.value) || 0;
+                const scaleZ = parseFloat(scaleZInput.value) || 0;
+                const posX = parseFloat(posXInput.value) || 0;
+                const posY = parseFloat(posYInput.value) || 0;
+                const posZ = parseFloat(posZInput.value) || 0;
+                const rotX = parseFloat(rotXInput.value) || 0;
+                const rotY = parseFloat(rotYInput.value) || 0;
+                const rotZ = parseFloat(rotZInput.value) || 0;
+                const track = trackInput.value.trim();
+
+                if (!name || !type || !material || isNaN(scaleX) || isNaN(scaleY) || isNaN(scaleZ) || isNaN(posX) || isNaN(posY) || isNaN(posZ) || isNaN(rotX) || isNaN(rotY) || isNaN(rotZ) || !track) {
+                    alert("Please fill in all object fields");
+                    return;
+                }
+
+                if (materials.findIndex((mat) => mat.name === material) === -1) {
+                    alert("Material does not exist");
+                    return;
+                }
+
+                const object = {
+                    name,
+                    geometry: {
+                        type,
+                        material,
+                        collision,
+                    },
+                    scale: [scaleX, scaleY, scaleZ],
+                    position: [posX, posY, posZ],
+                    rotation: [rotX, rotY, rotZ],
+                    track,
+                };
+
+                if (selectedObjectIndex !== -1) {
+                    objects[selectedObjectIndex] = object;
+                    selectedObjectIndex = -1;
+                } else {
+                    objects.push(object);
+                }
+
+                refreshObjectList();
+            }
+
+            function deleteObject() {
+                if (selectedObjectIndex !== -1) {
+                    objects.splice(selectedObjectIndex, 1);
+                    selectedObjectIndex = -1;
+                    refreshObjectList();
+                }
+            }
+
+            function selectObject(index) {
+                selectedObjectIndex = index;
+                const object = objects[index];
+
+                const nameInput = document.getElementById("objectName");
+                const typeSelect = document.getElementById("objectType");
+                const materialInput = document.getElementById("objectMaterial");
+                const collisionInput = document.getElementById("objectCollision");
+                const scaleXInput = document.getElementById("objectScaleX");
+                const scaleYInput = document.getElementById("objectScaleY");
+                const scaleZInput = document.getElementById("objectScaleZ");
+                const posXInput = document.getElementById("objectPositionX");
+                const posYInput = document.getElementById("objectPositionY");
+                const posZInput = document.getElementById("objectPositionZ");
+                const rotXInput = document.getElementById("objectRotationX");
+                const rotYInput = document.getElementById("objectRotationY");
+                const rotZInput = document.getElementById("objectRotationZ");
+                const trackInput = document.getElementById("objectTrack");
+
+                nameInput.value = object.name;
+                typeSelect.value = object.geometry.type;
+                materialInput.value = object.geometry.material;
+                collisionInput.checked = object.geometry.collision;
+                scaleXInput.value = object.scale[0];
+                scaleYInput.value = object.scale[1];
+                scaleZInput.value = object.scale[2];
+                posXInput.value = object.position[0];
+                posYInput.value = object.position[1];
+                posZInput.value = object.position[2];
+                rotXInput.value = object.rotation[0];
+                rotYInput.value = object.rotation[1];
+                rotZInput.value = object.rotation[2];
+                trackInput.value = object.track;
+            }
+
+            function deselectObject() {
+                selectedObjectIndex = -1;
+            }
+
+            function clearObjectFields() {
+                const nameInput = document.getElementById("objectName");
+                const typeSelect = document.getElementById("objectType");
+                const materialInput = document.getElementById("objectMaterial");
+                const collisionInput = document.getElementById("objectCollision");
+                const scaleXInput = document.getElementById("objectScaleX");
+                const scaleYInput = document.getElementById("objectScaleY");
+                const scaleZInput = document.getElementById("objectScaleZ");
+                const posXInput = document.getElementById("objectPositionX");
+                const posYInput = document.getElementById("objectPositionY");
+                const posZInput = document.getElementById("objectPositionZ");
+                const rotXInput = document.getElementById("objectRotationX");
+                const rotYInput = document.getElementById("objectRotationY");
+                const rotZInput = document.getElementById("objectRotationZ");
+                const trackInput = document.getElementById("objectTrack");
+
+                nameInput.value = "";
+                typeSelect.value = "Sphere";
+                materialInput.value = "";
+                collisionInput.checked = false;
+                scaleXInput.value = "";
+                scaleYInput.value = "";
+                scaleZInput.value = "";
+                posXInput.value = "";
+                posYInput.value = "";
+                posZInput.value = "";
+                rotXInput.value = "";
+                rotYInput.value = "";
+                rotZInput.value = "";
+                trackInput.value = "";
+            }
+
+            function importEnvironment() {
+                const importFile = document.getElementById("importFile");
+
+                if (importFile.files.length === 0) {
+                    alert("Please select a file to import");
+                    return;
+                }
+
+                const file = importFile.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const importedData = JSON.parse(e.target.result);
+
+                    if (importedData.materials && importedData.objects) {
+                        materials = importedData.materials;
+                        objects = importedData.objects;
+                        refreshMaterialList();
+                        refreshObjectList();
+                        alert("Environment imported successfully");
+                    } else {
+                        alert("Invalid environment data");
+                    }
+                };
+
+                reader.readAsText(file);
+                clearObjectFields();
+                clearMaterialFields();
+            }
+
+            function exportEnvironment() {
+                const exportData = {
+                    materials,
+                    objects,
+                };
+
+                const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData));
+                const exportAnchor = document.createElement("a");
+                exportAnchor.setAttribute("href", dataStr);
+                exportAnchor.setAttribute("download", "environment.json");
+                exportAnchor.click();
+            }
+        </script>
+    </body>
+</html>
